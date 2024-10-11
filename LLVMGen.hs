@@ -1,7 +1,9 @@
 module LLVMGen where
 
-import AbsInstant
 import Control.Monad.State
+import Data.List
+
+import AbsInstant
 
 type FV a = State Integer a
 
@@ -60,7 +62,7 @@ getGlobals l =
         getNames ((SExp expr):t) = getNames t
         getNames [] = []
         makeGlobal var = (varname var) ++ " = internal global i32 0\n" in
-    concat $ map makeGlobal (getNames l)
+    concat $ map makeGlobal (nub $ getNames l)
 
 genLLVM :: [Stmt] -> String
 genLLVM l = 
