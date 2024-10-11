@@ -12,4 +12,4 @@ main = do
     text <- getContents
     case pProgram (myLexer text) of
         Left err -> putStrLn err
-        Right (Prog ast) -> putStrLn $ genJVM ast
+        Right (Prog ast) -> putStrLn $ genLLVM ast

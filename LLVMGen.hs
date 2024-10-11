@@ -5,6 +5,9 @@ import Control.Monad.State
 
 type FV a = State Integer a
 
+printInt :: String
+printInt = "declare i32 @printf(i8*, ...) \n\n@dnl = internal constant [4 x i8] c\"%d\\0A\\00\"\ndefine void @printInt(i32 %x) {\n\t%t0 = getelementptr [4 x i8], [4 x i8]* @dnl, i32 0, i32 0\n\tcall i32 (i8*, ...) @printf(i8* %t0, i32 %x) \n\tret void\n}\n\n"
+
 name :: Ident -> String
 name (Ident x) = "%" ++ x
 
@@ -25,7 +28,9 @@ emitStmt :: Stmt -> FV String
 emitStmt (SAss var expr) = do
     (code, local) <- emitExp expr
     return $ code ++ "store i32 " ++ local ++ ", i32* " ++ varname var ++ "\n\t"
-emitStmt (SExp expr) = fmap fst $ emitExp expr
+emitStmt (SExp expr) = do
+    (code, var) <- emitExp expr
+    return $ code ++ "call void @printInt(i32 " ++ var ++ ")\n\t"
 
 emitExpText :: String -> Exp -> Exp -> FV (String, String)
 emitExpText text e1 e2 = do
@@ -59,7 +64,8 @@ getGlobals l =
 
 genLLVM :: [Stmt] -> String
 genLLVM l = 
+    printInt ++ 
     getGlobals l ++ 
     "define i32 @main() {\n\t" ++
     concat (runFV (mapM emitStmt l)) ++
-    "\n}"
+    "ret i32 0\n}"
