@@ -72,13 +72,13 @@ emitStmt (SExp expr) = do
     return (d + 1, "getstatic java/lang/System/out Ljava/io/PrintStream;\n\t" ++ code ++ "invokevirtual java/io/PrintStream/println(I)V\n\t")
 
 
-genJVM :: [Stmt] -> String
-genJVM ss = 
+genJVM :: String -> [Stmt] -> String
+genJVM classname ss = 
     let codes = mapM emitStmt ss
         (cs, locals) = runTCM codes
         maxd = Prelude.foldr (\x y -> if fst x >= y then fst x else y) 0 cs
         code = concat (Prelude.map snd cs) in
-    ".class public Main\n" ++
+    ".class public " ++ classname ++ "\n" ++
     ".super java/lang/Object\n\n" ++
     ".method public <init>()V\n\taload_0\n\tinvokespecial java/lang/Object/<init>()V\n\treturn\n.end method\n\n" ++
     ".method public static main([Ljava/lang/String;)V\n" ++ 
