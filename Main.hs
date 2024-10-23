@@ -5,6 +5,7 @@ import ParInstant
 import LexInstant
 
 import LLVMGen
+import JVMGen
 
 main :: IO ()
 main = do
