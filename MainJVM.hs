@@ -1,10 +1,15 @@
 module Main where
 
+import System.FilePath
+import System.Environment
+
 import JVMGen
 import InstantIO
 
 makeCommand :: String -> String -> String
-makeCommand basename folder = "java -jar lib/jasmin.jar -d " ++ folder ++ " " ++ basename ++ ".j" 
+makeCommand dir basename folder = "java -jar " ++ dir ++ "/lib/jasmin.jar -d " ++ folder ++ " " ++ basename ++ ".j"  
 
 main :: IO ()
-main = makeIO genJVM (++ ".j") makeCommand
+main = do
+    dir <- fmap takeDirectory getExecutablePath
+    makeIO genJVM (++ ".j") (makeCommand dir)

@@ -29,3 +29,4 @@ lib/
 *.bc
 insc_llvm
 insc_jvm
+*.tar.gz

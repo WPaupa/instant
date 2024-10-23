@@ -2,6 +2,7 @@ module JVMGen where
 
 import Control.Monad.State
 import Data.Map
+import System.FilePath
 
 import AbsInstant
 
@@ -50,6 +51,8 @@ emitExp (ExpLit i) = return (1,
             "iconst_" ++ show i ++ "\n\t"
         else if -128 <= i && i <= 127 then
             "bipush " ++ show i ++ "\n\t"
+        else if -32768 <= i && i <= 32767 then
+            "sipush " ++ show i ++ "\n\t"
         else "ldc " ++ show i ++ "\n\t" 
     )
 emitExp (ExpVar v) = do
@@ -78,11 +81,11 @@ genJVM classname ss =
         (cs, locals) = runTCM codes
         maxd = Prelude.foldr (\x y -> if fst x >= y then fst x else y) 0 cs
         code = concat (Prelude.map snd cs) in
-    ".class public " ++ classname ++ "\n" ++
+    ".class public " ++ takeBaseName classname ++ "\n" ++
     ".super java/lang/Object\n\n" ++
     ".method public <init>()V\n\taload_0\n\tinvokespecial java/lang/Object/<init>()V\n\treturn\n.end method\n\n" ++
     ".method public static main([Ljava/lang/String;)V\n" ++ 
     ".limit stack " ++ show maxd ++ "\n" ++
-    ".limit locals " ++ show locals ++ "\n\t" ++
+    ".limit locals " ++ show (if locals == 0 then 1 else locals) ++ "\n\t" ++
     code ++
     "return\n.end method"
