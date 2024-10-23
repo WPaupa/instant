@@ -3,6 +3,7 @@
 # Makefile for building the parser and test program.
 
 GHC        = ghc
+GHC_OPTS   = --make
 HAPPY      = happy
 HAPPY_OPTS = --array --info --ghc --coerce
 ALEX       = alex
@@ -14,7 +15,7 @@ ALEX_OPTS  = --ghc
 
 # Default goal.
 
-all : TestInstant
+all : MainLLVM MainJVM
 
 # Rules for building the parser.
 
@@ -27,13 +28,16 @@ AbsInstant.hs LexInstant.x ParInstant.y PrintInstant.hs TestInstant.hs : Instant
 %.hs : %.x
 	${ALEX} ${ALEX_OPTS} $<
 
-TestInstant : AbsInstant.hs LexInstant.hs ParInstant.hs PrintInstant.hs TestInstant.hs
-	${GHC} ${GHC_OPTS} $@
+MainLLVM : AbsInstant.hs LexInstant.hs ParInstant.hs PrintInstant.hs LLVMGen.hs InstantIO.hs MainLLVM.hs
+	${GHC} ${GHC_OPTS} $@ -o insc_llvm
+
+MainJVM : AbsInstant.hs LexInstant.hs ParInstant.hs PrintInstant.hs JVMGen.hs InstantIO.hs MainJVM.hs
+	${GHC} ${GHC_OPTS} $@ -o insc_jvm
 
 # Rules for cleaning generated files.
 
 clean :
-	-rm -f *.hi *.o *.log *.aux *.dvi
+	-rm -f *.hi *.o *.log *.aux *.dvi insc_llvm insc_jvm
 
 distclean : clean
 	-rm -f AbsInstant.hs AbsInstant.hs.bak ComposOp.hs ComposOp.hs.bak DocInstant.txt DocInstant.txt.bak ErrM.hs ErrM.hs.bak LayoutInstant.hs LayoutInstant.hs.bak LexInstant.x LexInstant.x.bak ParInstant.y ParInstant.y.bak PrintInstant.hs PrintInstant.hs.bak SkelInstant.hs SkelInstant.hs.bak TestInstant.hs TestInstant.hs.bak XMLInstant.hs XMLInstant.hs.bak ASTInstant.agda ASTInstant.agda.bak ParserInstant.agda ParserInstant.agda.bak IOLib.agda IOLib.agda.bak Main.agda Main.agda.bak Instant.dtd Instant.dtd.bak TestInstant LexInstant.hs ParInstant.hs ParInstant.info ParDataInstant.hs Makefile

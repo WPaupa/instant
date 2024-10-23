@@ -27,3 +27,5 @@ lib/
 *.j
 *.ll
 *.bc
+insc_llvm
+insc_jvm
